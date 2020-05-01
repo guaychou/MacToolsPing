@@ -7,7 +7,7 @@ This tools will appears in your system tray.
 
 ### Screenshot
 
-![Screenshot](images/img.png)
+![Screenshot](images/img1.png)
 
 ### How to build from source:
 
