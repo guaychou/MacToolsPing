@@ -1,4 +1,4 @@
-module github.com/guaychou/cronProject
+module github.com/guaychou/MacToolsPing
 
 go 1.13
 
