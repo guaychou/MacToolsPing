@@ -1,20 +1,27 @@
 # Mac Tools Ping
 
-The purpose of this tools is monitoring your ping latency to google.com
-This tools appears in your system tray.
-Already tested in Mac OS 10.14.6
+The purpose of this tools is monitoring your ping latency to google.com <br /> 
+This tools will appears in your system tray.
 
-## How to build:
+- Tested in Mac OS Mojave 10.14.6
+
+### Screenshot
+
+![Screenshot](images/img.png)
+
+### How to build from source:
+
+Requirements:
+- Golang 1.13 or above
+- Go module on
+
 ```cassandraql
 $ git clone https://github.com/guaychou/MacToolsPing.git
 $ cd MacToolsPing
 $ chmod +x build.sh
 $ ./build.sh
 ```
-
-### Screenshot
-
-![Screenshot](images/img.png)
+Download release [here](https://github.com/guaychou/MacToolsPing/releases/download/v1.0/PingService.app.zip)
 
 Credits to :
 
