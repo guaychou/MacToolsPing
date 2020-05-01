@@ -1,7 +1,11 @@
 #!/bin/bash
-set -e
+echo "`date` : Build starting . . . "
 mkdir -p ~/Applications/PingService.app/Contents/MacOS
-go build -O PingService
+go build -o PingService 2>err.log
+if [ -s "err.log" ];then
+  echo -e "`date` : Build failed, check err.log "
+  exit 2
+fi
 cp PingService ~/Applications/PingService.app/Contents/MacOS
 cat << EOF > ~/Applications/PingService.app/Contents/Info.plist
 <?xml version="1.0" encoding="UTF-8"?>
@@ -16,4 +20,4 @@ cat << EOF > ~/Applications/PingService.app/Contents/Info.plist
 </dict>
 </plist>
 EOF
-echo "Build done . . . "
+echo -e "`date` : Build Success . . . Find your app, in your home Applications "

@@ -1,4 +1,5 @@
 package main
+
 import (
 	"github.com/getlantern/systray"
 	"github.com/sparrc/go-ping"
@@ -6,7 +7,6 @@ import (
 )
 func main(){
 	systray.Run(onReady, onExit)
-
 }
 
 func onReady(){
@@ -34,9 +34,9 @@ func onExit() {
 }
 
 func pingGoogle() string {
-	pinger, err := ping.NewPinger("www.google.com")
+	pinger,err := ping.NewPinger("www.google.com")
 	if err != nil {
-		panic(err)
+		return "Network Error"
 	}
 	pinger.Count = 1
 	pinger.Run()                 // blocks until finished
