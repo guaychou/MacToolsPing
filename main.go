@@ -1,10 +1,11 @@
 package main
 
 import (
+	"errors"
 	"github.com/getlantern/systray"
 	"github.com/sparrc/go-ping"
+	"strconv"
 	"time"
-	"errors"
 )
 func main(){
 	systray.Run(onReady, onExit)
@@ -20,7 +21,7 @@ func onReady(){
 				systray.SetTitle(err.Error())
 			}else{
 				systray.SetTitle(result)
-				time.Sleep(3 * time.Second)
+				time.Sleep(1 * time.Second)
 			}
 		}
 	}()
@@ -49,8 +50,9 @@ func pingGoogle() (string,error) {
 	pinger.Count = 1
 	pinger.Run()                 // blocks until finished
 	stats := pinger.Statistics() // get send/receive/rtt stats
+	result:=int(stats.Rtts[0].Milliseconds())
 	if stats!=nil{
-		return 	"Ping: "+stats.Rtts[0].String(),nil
+		return 	strconv.Itoa(result) +" ms",nil
 	}
 	return "", errors.New("Network Error")
 }
