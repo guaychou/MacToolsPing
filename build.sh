@@ -2,7 +2,7 @@
 echo "`date` : Build starting . . . "
 mkdir -p ~/Applications/PingService.app/Contents/MacOS
 go mod download
-go build -o PingService 2>err.log
+GOMAXPROCS=1 go build -o PingService 2>err.log
 if [ -s "err.log" ];then
   echo -e "`date` : Build failed, check err.log "
   exit 2

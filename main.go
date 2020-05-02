@@ -21,7 +21,7 @@ func onReady(){
 				systray.SetTitle(err.Error())
 			}else{
 				systray.SetTitle(result)
-				time.Sleep(1 * time.Second)
+				time.Sleep(2 * time.Second)
 			}
 		}
 	}()
@@ -47,12 +47,24 @@ func pingGoogle() (string,error) {
 	if err != nil {
 		return "", errors.New("Network Error")
 	}
-	pinger.Count = 1
-	pinger.Run()                 // blocks until finished
-	stats := pinger.Statistics() // get send/receive/rtt stats
-	result:=int(stats.Rtts[0].Milliseconds())
-	if stats!=nil{
-		return 	strconv.Itoa(result) +" ms",nil
+	runPinger(pinger)
+	result,err:=getPingLatency(pinger)
+	if err!=nil{
+		return "", errors.New("Network Error")
 	}
-	return "", errors.New("Network Error")
+	return 	strconv.Itoa(result) +" ms",nil
+}
+
+func runPinger(pinger *ping.Pinger) {
+	pinger.Count = 1
+	pinger.Timeout=2 * time.Second
+	pinger.Debug=true
+	pinger.Run()
+}
+
+func getPingLatency(pinger *ping.Pinger)(int,error){
+	if pinger.Statistics().Rtts==nil{
+		return -1,errors.New("Result zero")
+	}
+	return int(pinger.Statistics().Rtts[0].Milliseconds()),nil
 }
