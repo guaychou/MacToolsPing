@@ -12,7 +12,7 @@ import (
 )
 
 const url_ip = "https://www.myexternalip.com/raw"
-
+var pingAddress="www.google.com"
 func main(){
 	systray.Run(onReady, onExit)
 }
@@ -32,6 +32,9 @@ func onReady(){
 		}
 	}()
 	systray.AddSeparator()
+	pingTray:=systray.AddMenuItem("Ping Address","Your Ping Address")
+	googleAddress:=pingTray.AddSubMenuItem("Google","Google Address")
+	cloudflareAddress:=pingTray.AddSubMenuItem("Cloudflare","Cloudflare Address")
 	publicIp:=systray.AddMenuItem("","Your Public IP")
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quits this app")
@@ -40,6 +43,7 @@ func onReady(){
 			result,err:=getPublicIp()
 			if err!=nil{
 				publicIp.SetTitle(err.Error())
+
 			}else{
 				publicIp.SetTitle(result)
 				time.Sleep(10 * time.Minute)
@@ -55,6 +59,25 @@ func onReady(){
 			}
 		}
 	}()
+
+	go func() {
+		for {
+			select {
+			case <-googleAddress.ClickedCh:
+				pingAddress="www.google.com"
+				return
+			}
+		}
+	}()
+	go func() {
+		for {
+			select {
+			case <-cloudflareAddress.ClickedCh:
+				pingAddress="1.1.1.1"
+				return
+			}
+		}
+	}()
 }
 
 func onExit() {
@@ -62,7 +85,8 @@ func onExit() {
 }
 
 func pingGoogle() (string,error) {
-	pinger,err := ping.NewPinger("www.google.com")
+	pinger,err := ping.NewPinger(pingAddress)
+	log.Print(pingAddress)
 	if err != nil {
 		return "", errors.New("Network Error")
 	}
