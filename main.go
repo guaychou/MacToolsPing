@@ -4,9 +4,15 @@ import (
 	"errors"
 	"github.com/getlantern/systray"
 	"github.com/sparrc/go-ping"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"strconv"
 	"time"
 )
+
+const url_ip = "https://www.myexternalip.com/raw"
+
 func main(){
 	systray.Run(onReady, onExit)
 }
@@ -26,7 +32,20 @@ func onReady(){
 		}
 	}()
 	systray.AddSeparator()
+	publicIp:=systray.AddMenuItem("","Your Public IP")
+	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quits this app")
+	go func() {
+		for  {
+			result,err:=getPublicIp()
+			if err!=nil{
+				publicIp.SetTitle(err.Error())
+			}else{
+				publicIp.SetTitle(result)
+				time.Sleep(10 * time.Minute)
+			}
+		}
+	}()
 	go func() {
 		for {
 			select {
@@ -67,4 +86,20 @@ func getPingLatency(pinger *ping.Pinger)(int,error){
 		return -1,errors.New("Result zero")
 	}
 	return int(pinger.Statistics().Rtts[0].Milliseconds()),nil
+}
+
+func getPublicIp()(string,error){
+	resp,err:=http.Get(url_ip)
+	if err!=nil{
+		return "", errors.New("Network Error")
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode==http.StatusOK{
+		body, err := ioutil.ReadAll(resp.Body)
+		if err!=nil{
+			log.Fatal(err)
+		}
+		return "IP: "+string(body),nil
+	}
+	return "",errors.New("Network Error")
 }
