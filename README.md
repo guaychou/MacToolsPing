@@ -21,7 +21,7 @@ $ cd MacToolsPing
 $ chmod +x build.sh
 $ ./build.sh
 ```
-Download release [here](https://github.com/guaychou/MacToolsPing/releases/download/v1.0/PingService.app.zip)
+Download release [here](https://github.com/guaychou/MacToolsPing/releases/download/v1.0/PingService.zip)
 
 Credits to :
 
