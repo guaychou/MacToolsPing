@@ -7,54 +7,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
-	yaml "gopkg.in/yaml.v2"
 )
 
 const url_ip = "https://www.myexternalip.com/raw"
 const configFileName="config.yml"
 var pingAddress string
 
-type Config struct {
-	Server struct {
-		Address string `yaml:"address"`
-	}
-}
 
-func readConfig()(*Config,error){
-	config := &Config{}
-	//Dir, err := os.Getwd()
-	Dir,err:=os.Executable()
-	log.Print(Dir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	configPath:=getConfigDirectory()+"/"+configFileName
-	file,err:=os.Open(configPath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	d := yaml.NewDecoder(file)
-	if err := d.Decode(&config); err != nil {
-		return nil, err
-	}
-	return config, nil
-}
-
-func getConfigDirectory()string{
-	Dir,err:=os.Executable()
-	log.Print(Dir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	configPath := filepath.Dir(Dir)
-	return configPath
-}
 
 func init(){
 	cfg,err:=readConfig()
@@ -168,17 +129,4 @@ func getPublicIp()(string,error){
 		return "IP: "+string(body),nil
 	}
 	return "",errors.New("Network Error")
-}
-
-func writeConfigState(address string){
-	var config Config
-	config.Server.Address=address
-	d, err := yaml.Marshal(&config)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	err = ioutil.WriteFile(configFileName, d, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
