@@ -7,12 +7,64 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
+	yaml "gopkg.in/yaml.v2"
 )
 
 const url_ip = "https://www.myexternalip.com/raw"
-var pingAddress="www.google.com"
+const configFileName="config.yml"
+var pingAddress string
+
+type Config struct {
+	Server struct {
+		Address string `yaml:"address"`
+	}
+}
+
+func readConfig()(*Config,error){
+	config := &Config{}
+	//Dir, err := os.Getwd()
+	Dir,err:=os.Executable()
+	log.Print(Dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	configPath:=getConfigDirectory()+"/"+configFileName
+	file,err:=os.Open(configPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	d := yaml.NewDecoder(file)
+	if err := d.Decode(&config); err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+func getConfigDirectory()string{
+	Dir,err:=os.Executable()
+	log.Print(Dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	configPath := filepath.Dir(Dir)
+	return configPath
+}
+
+func init(){
+	cfg,err:=readConfig()
+	if err!=nil{
+		ioutil.WriteFile("/tmp/error.log", []byte(err.Error()),0644)
+		log.Fatal(err)
+	}
+	pingAddress=cfg.Server.Address
+}
+
 func main(){
 	systray.Run(onReady, onExit)
 }
@@ -38,6 +90,7 @@ func onReady(){
 	publicIp:=systray.AddMenuItem("","Your Public IP")
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quits this app")
+
 	go func() {
 		for  {
 			result,err:=getPublicIp()
@@ -46,34 +99,23 @@ func onReady(){
 
 			}else{
 				publicIp.SetTitle(result)
-				time.Sleep(10 * time.Minute)
+				time.Sleep(30 * time.Minute)
 			}
 		}
 	}()
-	go func() {
-		for {
-			select {
-			case <-mQuit.ClickedCh:
-				systray.Quit()
-				return
-			}
-		}
-	}()
-
 	go func() {
 		for {
 			select {
 			case <-googleAddress.ClickedCh:
 				pingAddress="www.google.com"
-				return
-			}
-		}
-	}()
-	go func() {
-		for {
-			select {
+				writeConfigState("www.google.com")
+
 			case <-cloudflareAddress.ClickedCh:
 				pingAddress="1.1.1.1"
+				writeConfigState("1.1.1.1")
+
+			case <-mQuit.ClickedCh:
+				systray.Quit()
 				return
 			}
 		}
@@ -126,4 +168,17 @@ func getPublicIp()(string,error){
 		return "IP: "+string(body),nil
 	}
 	return "",errors.New("Network Error")
+}
+
+func writeConfigState(address string){
+	var config Config
+	config.Server.Address=address
+	d, err := yaml.Marshal(&config)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	err = ioutil.WriteFile(configFileName, d, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

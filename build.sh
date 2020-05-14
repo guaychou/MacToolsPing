@@ -8,6 +8,7 @@ if [ -s "err.log" ];then
   exit 2
 fi
 cp PingService ~/Applications/PingService.app/Contents/MacOS
+cp config.yml ~/Applications/PingService.app/Contents/MacOS
 cat << EOF > ~/Applications/PingService.app/Contents/Info.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
