@@ -15,12 +15,9 @@ const url_ip = "https://www.myexternalip.com/raw"
 const configFileName="config.yml"
 var pingAddress string
 
-
-
 func init(){
 	cfg,err:=readConfig()
 	if err!=nil{
-		ioutil.WriteFile("/tmp/error.log", []byte(err.Error()),0644)
 		log.Fatal(err)
 	}
 	pingAddress=cfg.Server.Address
@@ -69,11 +66,9 @@ func onReady(){
 			select {
 			case <-googleAddress.ClickedCh:
 				pingAddress="www.google.com"
-				writeConfigState("www.google.com")
 
 			case <-cloudflareAddress.ClickedCh:
 				pingAddress="1.1.1.1"
-				writeConfigState("1.1.1.1")
 
 			case <-mQuit.ClickedCh:
 				systray.Quit()
@@ -84,7 +79,7 @@ func onReady(){
 }
 
 func onExit() {
-	// Cleaning stuff here.
+	writeConfigState(pingAddress)
 }
 
 func pingGoogle() (string,error) {
